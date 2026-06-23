@@ -1,0 +1,48 @@
+---
+# Playbook: Instalacja i konfiguracja serwera httpd na RHEL 9
+# Przeznaczony do uruchomienia z Ansible Automation Platform (Job Template)
+
+- name: Instalacja i konfiguracja httpd na RHEL9
+  hosts: all
+  become: true
+
+  vars:
+    httpd_package: httpd
+    httpd_service: httpd
+    httpd_docroot: /var/www/html
+
+  tasks:
+
+    - name: Instalacja pakietu httpd
+      ansible.builtin.dnf:
+        name: "{{ httpd_package }}"
+        state: present
+
+    - name: Włączenie i uruchomienie usługi httpd
+      ansible.builtin.systemd:
+        name: "{{ httpd_service }}"
+        enabled: true
+        state: started
+
+    - name: Wygenerowanie pliku index.html z hostname serwera
+      ansible.builtin.copy:
+        dest: "{{ httpd_docroot }}/index.html"
+        content: |
+          <html>
+            <head><title>{{ ansible_hostname }}</title></head>
+            <body>
+              <h1>Hostname: {{ ansible_hostname }}</h1>
+            </body>
+          </html>
+        owner: apache
+        group: apache
+        mode: '0644'
+
+    - name: Otwarcie portu HTTP w firewalld (jeśli firewalld jest aktywny)
+      ansible.posix.firewalld:
+        service: http
+        permanent: true
+        immediate: true
+        state: enabled
+      when: ansible_facts.services['firewalld.service'] is defined
+      ignore_errors: true
