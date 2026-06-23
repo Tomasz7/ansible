@@ -11,6 +11,9 @@
   hosts: all
   become: true
 
+  roles:
+    - redhatone.vm_management.rhsm_subscription
+
   vars:
     httpd_package: httpd
     httpd_service: httpd
