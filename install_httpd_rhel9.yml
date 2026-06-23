@@ -2,18 +2,13 @@
 # Playbook: Instalacja i konfiguracja serwera httpd na RHEL 9
 # Przeznaczony do uruchomienia z Ansible Automation Platform (Job Template)
 #
-# hosts: "{{ vm_namespace }}" - zakłada, że Dynamic Inventory (plugin kubevirt)
-# tworzy grupę nazwaną jak namespace OpenShift Virtualization (np. vms-aap-day2).
-# Po zsynchronizowaniu inventory sprawdź faktyczną nazwę grupy w AAP.
-#
-# Zmienna vm_namespace MUSI być dostarczona z zewnątrz playbooka, np.:
-#   - jako "Extra Variables" / Survey w Job Template (vm_namespace: vms-aap-day2)
-#   - lub w group_vars/all.yml inventory
-# (Wartość zdefiniowana lokalnie w sekcji vars: tego playa nie zadziała tu jako
-# fallback, ponieważ hosts: jest rozwiązywane zanim play vars zostaną scalone.)
+# Celowanie w konkretny namespace OpenShift Virtualization (np. vms-aap-day2)
+# odbywa się przez pole "Limit" w Job Template, NIE przez zmienne.
+# W polu Limit wpisz nazwę grupy/hosta zgodną z tym, co faktycznie
+# pokazuje zakładka Inventory -> Hosts po sync (np. vms-aap-day2-rhel9-vm1).
 
 - name: Instalacja i konfiguracja httpd na RHEL9
-  hosts: "{{ vm_namespace }}"
+  hosts: all
   become: true
 
   vars:
